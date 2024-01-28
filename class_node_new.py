@@ -104,25 +104,30 @@ class HiddenLayer(InputLayer):
             # If the Network class initialized the weights, use that instead
             self.weight = weight
 
-            try:
+            # try:
 
-                # If the length of the weight array isn't num_prior_outputs * num_inputs,
-                # throw an exception
-                if len(self.weight) != num_prior_outputs * num_inputs:
+            #     # If the length of the weight array isn't num_prior_outputs * num_inputs,
+            #     # throw an exception
+            #     if len(self.weight) != num_prior_outputs * num_inputs:
 
-                    raise Exception("Error! The weights provided to the layer \
-                                    don't have the correct number of values!")
+            #         raise Exception("Error! The weights provided to the layer \
+            #                         don't have the correct number of values!")
 
-            except:
+            # except:
 
-                raise Exception("Error! The data type you provided for weights isn't \
-                                a numpy array!")
+            #     raise Exception("Error! The data type you provided for weights isn't \
+            #                     a numpy array!")
         
+        print("Initial weight:", self.weight)
+        print("Num prior outputs:", self.num_prior_outputs)
+        print("Num inputs:", self.num_inputs)
+
         # Transform the weight array into a 2D matrix so that forward passes and
         # backpropagation can be calculated easily. The new numpy array will be
         # a 2D array with num_prior_outputs rows (arrays) by num_inputs columns
         # (number of sub-arrays).
-        self.weight = self.weight.reshape(num_inputs, num_prior_outputs).T
+        # self.weight = self.weight.reshape(num_inputs, num_prior_outputs).T
+        self.weight = self.weight.reshape(num_prior_outputs, num_inputs)
 
         # If bias hasn't been initialized by the Network class, create an array
         # and initialize it to a default value
@@ -137,18 +142,18 @@ class HiddenLayer(InputLayer):
             # If the Network class initialized the biases, use that instead
             self.bias = bias
 
-            try:
+            # try:
 
-                # If the length of the bias array isn't num_inputs, throw and exception
-                if len(self.bias) != num_inputs:
+            #     # If the length of the bias array isn't num_inputs, throw and exception
+            #     if len(self.bias) != num_inputs:
 
-                    raise Exception("Error! The weights provided to the layer \
-                                    don't have the correct number of values!")
+            #         raise Exception("Error! The weights provided to the layer \
+            #                         don't have the correct number of values!")
             
-            except:
+            # except:
                 
-                raise Exception("Error! The data type you provided for weights isn't \
-                                a numpy array!")
+            #     raise Exception("Error! The data type you provided for weights isn't \
+            #                     a numpy array!")
         
         # # Save the activation function specifics
         # self.actv_func = actv_func
@@ -218,11 +223,11 @@ class HiddenLayer(InputLayer):
         self.prior_output_val = prior_outputs
 
         # Make sure that the length of prior_outputs is self.num_prior_outputs
-        if len(self.prior_output_val) != self.num_prior_outputs:
+        # if len(self.prior_output_val) != self.num_prior_outputs:
 
-            raise Exception("Error! The number of inputs to the current layer \
-                            (the number of outputs from the prior layer) doesn't \
-                            match the dimensions originally given to the current layer!")
+        #     raise Exception("Error! The number of inputs to the current layer \
+        #                     (the number of outputs from the prior layer) doesn't \
+        #                     match the dimensions originally given to the current layer!")
 
         # Dot the prior layer's outputs with the current layer's weights
         # and add the bias value
@@ -260,10 +265,10 @@ class HiddenLayer(InputLayer):
         # of weights.
 
         # Check to make sure the total_loss has the correct number of elements
-        if len(total_loss) != self.num_inputs:
+        # if len(total_loss) != self.num_inputs:
 
-            raise Exception("Error! The loss I received doesn't match the dimensions \
-                            of my layer!")
+        #     raise Exception("Error! The loss I received doesn't match the dimensions \
+        #                     of my layer!")
 
         # Compute the general error (in the case of the hidden layer,
         # this is just total_loss * d(y_hat_curr) / d(x_curr) for the current layer).
@@ -271,25 +276,40 @@ class HiddenLayer(InputLayer):
         # of weight/bias error as well as the error that will be passed to subsequent layers.
         general_error = total_loss * self.d_y_hat_curr__d_x_curr(self.output_val)
 
+        # This is how many input samples were provided in the current batch
+        num_input_samples = len(total_loss)
+
         print("Info\n###############\n")
         print("Total loss:", total_loss)
         print("d(y_hat_curr) / d(x_curr):", self.d_y_hat_curr__d_x_curr(self.output_val))
         print("Current weights:", self.weight)
+        print("Current bias:", self.bias)
         print("General error:", general_error)
-        print("Prior output val:", self.prior_output_val[:, np.newaxis])
+        print("Prior output val:", self.prior_output_val)
         print("\n###############")
 
         # Store the total loss calculation (this is what the Network class will need
         # for subsequent layers)
-        self.loss = np.dot(self.weight, general_error)
+        # self.loss = np.dot(self.weight, general_error) # For a single input
+        self.loss = np.dot(general_error, self.weight.T) # For multiple inputs
+
+        print("Loss (for subsequent layers):", self.loss)
+        #print("General Error x Prior Output Val:", general_error * self.prior_output_val)
+        print("Prior output val (transposed):", self.prior_output_val.T)
+        print("General Error x Prior Output Val:", np.dot(self.prior_output_val.T, general_error))
+        #print("Mean:", np.mean(general_error * self.prior_output_val, axis=0)[:, np.newaxis])
 
         # Update the weight values
-        self.weight -= (self.alpha * (self.prior_output_val[:, np.newaxis] * general_error))
+        # self.weight -= (self.alpha * np.mean(general_error * self.prior_output_val, axis=0)[:, np.newaxis])
+        self.weight -= (self.alpha * np.dot(self.prior_output_val.T, general_error) / num_input_samples)
 
         # Update the bias values
         # Note that general_error is enough information to update the bias values
         # since d(x_curr) / d(bias) always produces 1
-        self.bias -= (self.alpha * general_error)
+        self.bias -= (self.alpha * np.mean(general_error, axis=0))
+
+        print("New weights:", self.weight)
+        print("New bias:", self.bias)
 
         # # Compute d(y_hat_curr) / d(x_curr) for the current layer
         # actv_func_error = self.d_y_hat_curr__d_x_curr(self.output_val)
@@ -342,6 +362,8 @@ class OutputLayer(HiddenLayer):
         # which will be passed into the current layer and subsequent layers
         # to determine the remaining loss throughout the ANN.
         total_loss = self.d_L__d_y_hat_curr(self.output_val, y_true)
+
+        print("dL / d(y_hat_curr):", total_loss)
 
         # Call the parent's method to compute the necessary backpropagation calculations
         super().perform_backpropagation(total_loss)

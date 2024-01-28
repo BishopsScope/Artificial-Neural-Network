@@ -116,13 +116,13 @@ def MSE():
         '''
 
         # Make sure the dimensions of y_hat_curr and y_true are the same
-        if len(y_hat_curr) != len(y_true):
+        # if len(y_hat_curr) != len(y_true):
 
-            raise Exception("Error! The dimensions of the output layer's output \
-                             and the dimensions of the true output aren't the same!")
+        #     raise Exception("Error! The dimensions of the output layer's output \
+        #                      and the dimensions of the true output aren't the same!")
 
         # Store the number of elements
-        N = len(y_hat_curr)
+        N = len(y_hat_curr[0])
 
         # Return the error (i.e. a single value to be reported which outlines
         # the ANNs overall error)
@@ -131,13 +131,13 @@ def MSE():
     def d_L__d_y_hat_curr(y_hat_curr, y_true):
 
         # Make sure the dimensions of y_hat_curr and y_true are the same
-        if len(y_hat_curr) != len(y_true):
+        # if len(y_hat_curr) != len(y_true):
 
-            raise Exception("Error! The dimensions of the output layer's output \
-                             and the dimensions of the true output aren't the same!")
+        #     raise Exception("Error! The dimensions of the output layer's output \
+        #                      and the dimensions of the true output aren't the same!")
 
         # Store the number of elements
-        N = len(y_hat_curr)
+        N = len(y_hat_curr[0])
 
         # Return the derivative of the loss wrt. output layer
         return (y_hat_curr - y_true) / N

@@ -8,11 +8,11 @@ def main():
     '''
 
     # Here's the true outputs
-    y_true = np.array([1])
+    y_true = np.array([[1], [1]])
 
-    input_vals = np.array([1, 0, 1])
+    input_vals = np.array([[1, 0, 1], [1, 0, 1]])
 
-    num_output_vals = len(input_vals)
+    num_output_vals = 3 # len(input_vals)
 
     
     input_layer = InputLayer(input_vals)
@@ -30,7 +30,7 @@ def main():
 
     # Initialize the hidden layer
     hidden_layer_1 = HiddenLayer(num_output_vals, num_nodes, \
-                                 weight=np.array([0.2, 0.4, -0.5, -0.3, 0.1, 0.2]), \
+                                 weight=np.array([0.2, -0.3, 0.4, 0.1, -0.5, 0.2]), \
                                  bias=np.array([-0.4, 0.2]))
 
     # Perform the forward pass
@@ -48,8 +48,11 @@ def main():
     # Store the output
     layer_output = hidden_layer_1.get_output()
 
-    # Store the length of the output
-    num_output_vals = len(hidden_layer_1.get_output())
+    # Store the length of the output from the current layer.
+    # Note that this value can be obtained by many different avenues,
+    # but this is one way that will always work due to the nature
+    # of the dimensions of the input values to the current layer.
+    num_output_vals = len(hidden_layer_1.get_input()[0])
 
     # View the outputs
     print("Outputs:\n", hidden_layer_1.get_output())
@@ -98,7 +101,11 @@ def main():
     # Print the final loss
     print("Final Loss:", output_layer.get_final_loss())
 
+    print("\n\n\n")
 
+
+    # Perform backpropagation on the hidden layer
+    hidden_layer_1.perform_backpropagation(output_layer.get_loss())
 
 
     # input_vals = np.array([1,2,3,4,5])
