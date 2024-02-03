@@ -12,10 +12,13 @@ def main():
 
     input_vals = np.array([[1, 0, 1], [1, 0, 1]])
 
-    num_output_vals = 3 # len(input_vals)
+    num_output_vals = len(input_vals[0]) # len(input_vals)
 
     
-    input_layer = InputLayer(input_vals)
+    #input_layer = InputLayer(input_vals)
+    input_layer = InputLayer(num_output_vals)
+
+    input_layer.set_input(input_vals)
 
     layer_output = input_layer.get_output()
 

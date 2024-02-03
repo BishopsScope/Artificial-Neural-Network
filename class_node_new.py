@@ -14,20 +14,32 @@ class InputLayer:
     This class defines a single input layer within a neural network.
     '''
 
-    def __init__(self, input_val = np.array([])):
+    def __init__(self, num_inputs): # input_val = np.array([])
         '''
         This initializer does nothing, since the output from an input
         layer is simply the input that was provided. If the input wasn't
         provided by the Network class, the layer will only consist of
         one node and the input to the node is zero.
         Here's what the parameter does:
-        input_val - An array that represents the linear combination of the prior
+        num_inputs - How many inputs the current layer can receive. This has nothing
+                     to do with the batch size 
+        
+        input_val (old) - An array that represents the linear combination of the prior
                     layer's y_hat values and current weights + bias (or it's explicitly
                     defined by the user if the layer is an input layer)
         '''
 
-        # Initialize the input
-        self.input_val = input_val
+        # Initialize the input with zeros
+        self.input_val = np.zeros(num_inputs) # input_val
+
+    def set_input(self, new_input_val):
+        '''
+        This method sets the value of the input(s) for the current layer and is
+        utilized for the input layer ONLY since the hidden/output layers
+        are set dynamically as the input is passed from layer to layer.
+        '''
+
+        self.input_val = new_input_val
 
     def get_input(self):
         '''
@@ -89,7 +101,8 @@ class HiddenLayer(InputLayer):
 
         # Initialize input_val by setting each input to a default value of zero
         # (since nothing has been plugged into the current layer yet)
-        super().__init__(np.zeros(num_inputs))
+        #super().__init__(np.zeros(num_inputs))
+        super().__init__(num_inputs)
 
         # If weight hasn't been initialized by the Network class, create an array
         # and initialize it to a default value

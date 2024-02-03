@@ -160,3 +160,22 @@ C = np.dot(B, A)
 print(A)
 print(B)
 print(C)
+
+
+#################################################################################
+
+# The following code represents how the weight loss is calculated for a hidden/output
+# layer.
+
+
+# This represents dL / d(y_hat_curr) * d(y_hat_curr) / d(x_curr) [i.e. general_error]
+A = np.array([[1, 2, 3], [4, 5, 6]])
+
+# This represents prior_output_val (the output values from the prior layer)
+B = np.array([[-1, -2], [-3, -4]])
+
+# This represents the matrix (same dimensions as the weight matrix) corresponding to
+# the loss at each weight.
+C = np.dot(B.T, A)
+
+print(C)
