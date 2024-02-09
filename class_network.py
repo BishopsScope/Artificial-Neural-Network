@@ -83,7 +83,7 @@ class Network:
                                                    layer_weights[i], layer_biases[i],
                                                    actv_funcs[i], alphas[i])
                                        for i in range(self.num_layers - 2)])
-        
+
         # Step 3) Construct the output layer
 
         self.output_layer = OutputLayer(nodes_per_layer[-2], nodes_per_layer[-1],

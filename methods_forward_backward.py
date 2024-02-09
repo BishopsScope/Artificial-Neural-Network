@@ -18,6 +18,9 @@ def init_actv_func(actv_func):
         forward_pass, d_y_hat_curr__d_x_curr = sigmoid()
     
     # Add elif statements in here for extra activation functions
+    elif actv_func == "Softmax":
+
+        forward_pass, d_y_hat_curr__d_x_curr = softmax()
 
     else:
 
@@ -88,7 +91,31 @@ def softmax():
     calcuation.
     '''
 
-    pass
+    def forward_pass(x_curr):
+
+        # Calculate e^(x_curr_i) for every i-th input once so that
+        # the exp() doesn't have to be calculated for every input
+        # multiple times.
+        e_vals = np.exp(x_curr)
+
+        # Sum up the e_vals once
+        e_sum = np.sum(e_vals, axis=1)[:, np.newaxis]
+
+        # Return the value that will be outputted after Softmax is applied
+        return e_vals / e_sum
+
+    def d_y_hat_curr__d_x_curr(y_hat_curr):
+        '''
+        We actually don't care about the value of this derivative
+        for the softmax layer, since calculating the derivative of the
+        loss function (i.e. )
+        '''
+
+        return 1
+
+    # Returns the functions necessary for calculating future forward passes
+    # and computing the derivative of the Softmax activation function.
+    return np.array([forward_pass, d_y_hat_curr__d_x_curr])
 
 ################################################################################################
 
